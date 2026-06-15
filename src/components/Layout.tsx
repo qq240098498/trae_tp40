@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Moon, ClipboardList, TrendingUp, Download } from 'lucide-react'
+import { Moon, ClipboardList, TrendingUp, Download, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSleepStore } from '@/store/sleepStore'
 import { exportToCSV } from '@/utils/export'
@@ -8,6 +8,7 @@ const navItems = [
   { path: '/record', label: '记录', icon: Moon },
   { path: '/history', label: '历史', icon: ClipboardList },
   { path: '/trends', label: '趋势', icon: TrendingUp },
+  { path: '/habits', label: '习惯', icon: Sparkles },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {

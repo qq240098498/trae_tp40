@@ -12,7 +12,7 @@ import {
   ReferenceLine,
 } from 'recharts'
 import { useSleepStore } from '@/store/sleepStore'
-import { formatTimeForChart, formatDate, getWeekDays, getMonthDays, formatDuration } from '@/utils/sleepCalculations'
+import { formatTimeForChart, formatDate, getWeekDays, getMonthDays } from '@/utils/sleepCalculations'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 

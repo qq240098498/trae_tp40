@@ -3,6 +3,7 @@ import Layout from '@/components/Layout'
 import Record from '@/pages/Record'
 import History from '@/pages/History'
 import Trends from '@/pages/Trends'
+import Habits from '@/pages/Habits'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="/record" element={<Record />} />
           <Route path="/history" element={<History />} />
           <Route path="/trends" element={<Trends />} />
+          <Route path="/habits" element={<Habits />} />
         </Routes>
       </Layout>
     </Router>

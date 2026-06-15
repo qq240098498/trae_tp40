@@ -1,3 +1,28 @@
+export const BEDTIME_HABITS = [
+  { id: 'phone', label: '玩手机', icon: '📱', impact: 'negative' },
+  { id: 'reading', label: '看书', icon: '📚', impact: 'positive' },
+  { id: 'tea', label: '喝茶/咖啡', icon: '🍵', impact: 'negative' },
+  { id: 'exercise', label: '运动', icon: '🏃', impact: 'neutral' },
+  { id: 'meditation', label: '冥想/放松', icon: '🧘', impact: 'positive' },
+  { id: 'music', label: '听音乐', icon: '🎵', impact: 'positive' },
+  { id: 'snack', label: '吃夜宵', icon: '🍔', impact: 'negative' },
+  { id: 'shower', label: '洗澡/泡脚', icon: '🛁', impact: 'positive' },
+] as const
+
+export const WAKE_HABITS = [
+  { id: 'getup_immediately', label: '立刻起床', icon: '☀️', impact: 'positive' },
+  { id: 'snooze_30', label: '赖床30分钟', icon: '😴', impact: 'negative' },
+  { id: 'snooze_10', label: '赖床10分钟', icon: '💤', impact: 'neutral' },
+  { id: 'phone_first', label: '先看手机', icon: '📱', impact: 'negative' },
+  { id: 'stretch', label: '拉伸/运动', icon: '🤸', impact: 'positive' },
+  { id: 'water', label: '喝一杯水', icon: '💧', impact: 'positive' },
+  { id: 'breakfast', label: '吃早餐', icon: '🍳', impact: 'positive' },
+  { id: 'coffee', label: '喝咖啡', icon: '☕', impact: 'neutral' },
+] as const
+
+export type BedtimeHabitId = typeof BEDTIME_HABITS[number]['id']
+export type WakeHabitId = typeof WAKE_HABITS[number]['id']
+
 export interface SleepRecord {
   id: string
   date: string
@@ -6,6 +31,8 @@ export interface SleepRecord {
   wakeTime: string
   wakeCount?: number
   quality: number
+  bedtimeHabits: BedtimeHabitId[]
+  wakeHabits: WakeHabitId[]
   timeInBed: number
   actualSleep: number
   efficiency: number

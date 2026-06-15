@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { SleepRecord } from '@/types/sleep'
+import type { SleepRecord, SleepRecordInput } from '@/types/sleep'
 import { calculateSleepData, generateId } from '@/utils/sleepCalculations'
 
 interface SleepStore {
   records: SleepRecord[]
-  addRecord: (data: Omit<SleepRecord, 'id' | 'timeInBed' | 'actualSleep' | 'efficiency' | 'createdAt' | 'updatedAt'>) => void
-  updateRecord: (id: string, data: Omit<SleepRecord, 'id' | 'timeInBed' | 'actualSleep' | 'efficiency' | 'createdAt' | 'updatedAt'>) => void
+  addRecord: (data: SleepRecordInput) => void
+  updateRecord: (id: string, data: SleepRecordInput) => void
   deleteRecord: (id: string) => void
   getRecordByDate: (date: string) => SleepRecord | undefined
 }
@@ -21,6 +21,8 @@ export const useSleepStore = create<SleepStore>()(
         const record: SleepRecord = {
           id: generateId(),
           ...data,
+          bedtimeHabits: data.bedtimeHabits ?? [],
+          wakeHabits: data.wakeHabits ?? [],
           timeInBed,
           actualSleep,
           efficiency,
@@ -34,7 +36,7 @@ export const useSleepStore = create<SleepStore>()(
         set((state) => ({
           records: state.records.map((r) =>
             r.id === id
-              ? { ...r, ...data, timeInBed, actualSleep, efficiency, updatedAt: Date.now() }
+              ? { ...r, ...data, bedtimeHabits: data.bedtimeHabits ?? r.bedtimeHabits, wakeHabits: data.wakeHabits ?? r.wakeHabits, timeInBed, actualSleep, efficiency, updatedAt: Date.now() }
               : r
           ),
         }))

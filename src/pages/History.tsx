@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trash2, Edit3, Moon, Clock, ChevronRight } from 'lucide-react'
+import { Trash2, Edit3, Moon, Clock } from 'lucide-react'
 import { useSleepStore } from '@/store/sleepStore'
 import { formatDuration, formatDate } from '@/utils/sleepCalculations'
 import { cn } from '@/lib/utils'

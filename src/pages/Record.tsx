@@ -5,6 +5,7 @@ import { useSleepStore } from '@/store/sleepStore'
 import { calculateSleepData, formatDuration, getTodayStr } from '@/utils/sleepCalculations'
 import StarRating from '@/components/StarRating'
 import { cn } from '@/lib/utils'
+import { BEDTIME_HABITS, WAKE_HABITS, type BedtimeHabitId, type WakeHabitId } from '@/types/sleep'
 
 export default function Record() {
   const navigate = useNavigate()
@@ -20,6 +21,8 @@ export default function Record() {
   const [wakeTime, setWakeTime] = useState(editRecord?.wakeTime ?? '07:00')
   const [wakeCount, setWakeCount] = useState<string>(editRecord?.wakeCount?.toString() ?? '')
   const [quality, setQuality] = useState(editRecord?.quality ?? 3)
+  const [bedtimeHabits, setBedtimeHabits] = useState<BedtimeHabitId[]>(editRecord?.bedtimeHabits ?? [])
+  const [wakeHabits, setWakeHabits] = useState<WakeHabitId[]>(editRecord?.wakeHabits ?? [])
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
@@ -30,6 +33,8 @@ export default function Record() {
       setWakeTime(editRecord.wakeTime)
       setWakeCount(editRecord.wakeCount?.toString() ?? '')
       setQuality(editRecord.quality)
+      setBedtimeHabits(editRecord.bedtimeHabits ?? [])
+      setWakeHabits(editRecord.wakeHabits ?? [])
     }
   }, [editRecord])
 
@@ -48,6 +53,8 @@ export default function Record() {
       wakeTime,
       wakeCount: wakeCount ? parseInt(wakeCount) : undefined,
       quality,
+      bedtimeHabits,
+      wakeHabits,
     }
 
     if (editId) {
@@ -70,6 +77,8 @@ export default function Record() {
     setWakeTime('07:00')
     setWakeCount('')
     setQuality(3)
+    setBedtimeHabits([])
+    setWakeHabits([])
   }
 
   const isValid = date && bedTime && sleepTime && wakeTime && quality
@@ -122,36 +131,108 @@ export default function Record() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
+                <Eye size={16} className="text-slate-400" />
+                醒来次数
+                <span className="text-[10px] text-slate-600">（可选）</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="20"
+                value={wakeCount}
+                onChange={(e) => setWakeCount(e.target.value)}
+                placeholder="0"
+                className="w-full bg-slate-800/80 border border-indigo-900/30 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all placeholder:text-slate-600"
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-3">
+                睡眠质量自评
+              </label>
+              <StarRating value={quality} onChange={setQuality} size={32} />
+              <div className="flex justify-between text-[10px] text-slate-600 mt-1 px-1">
+                <span>很差</span>
+                <span>一般</span>
+                <span>很好</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/60 backdrop-blur-sm border border-indigo-900/30 rounded-2xl p-6 space-y-6">
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-2">
-              <Eye size={16} className="text-slate-400" />
-              醒来次数
-              <span className="text-[10px] text-slate-600">（可选）</span>
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-3">
+              <Moon size={16} className="text-indigo-400" />
+              睡前习惯
+              <span className="text-[10px] text-slate-600">（可多选）</span>
             </label>
-            <input
-              type="number"
-              min="0"
-              max="20"
-              value={wakeCount}
-              onChange={(e) => setWakeCount(e.target.value)}
-              placeholder="0"
-              className="w-full bg-slate-800/80 border border-indigo-900/30 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all placeholder:text-slate-600"
-            />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {BEDTIME_HABITS.map((habit) => {
+                const selected = bedtimeHabits.includes(habit.id)
+                return (
+                  <button
+                    key={habit.id}
+                    type="button"
+                    onClick={() => {
+                      if (selected) {
+                        setBedtimeHabits(bedtimeHabits.filter((h) => h !== habit.id))
+                      } else {
+                        setBedtimeHabits([...bedtimeHabits, habit.id])
+                      }
+                    }}
+                    className={cn(
+                      'flex flex-col items-center gap-1 p-3 rounded-xl text-xs font-medium transition-all duration-200',
+                      selected
+                        ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-inner shadow-violet-500/10'
+                        : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'
+                    )}
+                  >
+                    <span className="text-xl">{habit.icon}</span>
+                    <span>{habit.label}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-3">
-              睡眠质量自评
+              <Sun size={16} className="text-amber-400" />
+              醒后习惯
+              <span className="text-[10px] text-slate-600">（可多选）</span>
             </label>
-            <StarRating value={quality} onChange={setQuality} size={32} />
-            <div className="flex justify-between text-[10px] text-slate-600 mt-1 px-1">
-              <span>很差</span>
-              <span>一般</span>
-              <span>很好</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {WAKE_HABITS.map((habit) => {
+                const selected = wakeHabits.includes(habit.id)
+                return (
+                  <button
+                    key={habit.id}
+                    type="button"
+                    onClick={() => {
+                      if (selected) {
+                        setWakeHabits(wakeHabits.filter((h) => h !== habit.id))
+                      } else {
+                        setWakeHabits([...wakeHabits, habit.id])
+                      }
+                    }}
+                    className={cn(
+                      'flex flex-col items-center gap-1 p-3 rounded-xl text-xs font-medium transition-all duration-200',
+                      selected
+                        ? 'bg-amber-600/20 text-amber-300 border border-amber-500/40 shadow-inner shadow-amber-500/10'
+                        : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'
+                    )}
+                  >
+                    <span className="text-xl">{habit.icon}</span>
+                    <span>{habit.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
-      </div>
 
       {computed && (
         <div className="grid grid-cols-3 gap-3">

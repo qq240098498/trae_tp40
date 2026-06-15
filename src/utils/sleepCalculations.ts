@@ -1,7 +1,7 @@
 export function calculateMinutesDiff(startTime: string, endTime: string): number {
   const [sh, sm] = startTime.split(':').map(Number)
   const [eh, em] = endTime.split(':').map(Number)
-  let startMinutes = sh * 60 + sm
+  const startMinutes = sh * 60 + sm
   let endMinutes = eh * 60 + em
   if (endMinutes <= startMinutes) {
     endMinutes += 24 * 60
