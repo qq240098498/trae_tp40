@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, TrendingDown, TrendingUp, Lightbulb, Moon, Sun } from 'lucide-react'
+import { Sparkles, TrendingDown, TrendingUp, Lightbulb, Moon, Sun, Info } from 'lucide-react'
 import { useSleepStore } from '@/store/sleepStore'
 import { analyzeHabits } from '@/utils/habitAnalysis'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,7 @@ export default function Habits() {
 
   const hasData = insights.bedtime.length > 0 || insights.wake.length > 0
   const hasSuggestions = insights.suggestions.length > 0
+  const hasCompareData = insights.topBadBedtimeHabits.length > 0 || insights.topGoodBedtimeHabits.length > 0 || insights.topBadWakeHabits.length > 0 || insights.topGoodWakeHabits.length > 0
 
   return (
     <div className="space-y-8">
@@ -37,6 +38,21 @@ export default function Habits() {
         </div>
       ) : (
         <>
+          {!hasCompareData && hasData && (
+            <div className="bg-slate-900/60 backdrop-blur-sm border border-indigo-900/30 rounded-2xl p-6">
+              <div className="flex items-start gap-3">
+                <Info size={20} className="text-blue-400 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-200 mb-1">数据积累中</h3>
+                  <p className="text-sm text-slate-400">
+                    目前只有 {records.length} 条记录，系统需要更多数据来分析习惯对睡眠的影响。
+                    继续记录，积累更多数据后即可获得个性化的对比分析和改善建议。
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {hasSuggestions && (
             <div className="bg-gradient-to-br from-violet-900/30 to-indigo-900/30 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-4">
@@ -185,32 +201,43 @@ export default function Habits() {
                   睡前习惯对入睡时间的影响
                 </h4>
                 <div className="space-y-2">
-                  {insights.bedtime.map((habit) => (
-                    <div
-                      key={habit.habitId}
-                      className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-800/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{habit.icon}</span>
-                        <span className="text-sm text-slate-300">{habit.label}</span>
+                  {insights.bedtime.map((habit) => {
+                    const hasWithout = habit.withoutSampleSize > 0
+                    return (
+                      <div
+                        key={habit.habitId}
+                        className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-800/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{habit.icon}</span>
+                          <span className="text-sm text-slate-300">{habit.label}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs">
+                          <span className="text-slate-500">
+                            有习惯: <span className="text-slate-300">{habit.avgSleepOnsetMinutes}分钟</span>
+                          </span>
+                          {hasWithout ? (
+                            <>
+                              <span className="text-slate-600">|</span>
+                              <span className="text-slate-500">
+                                无习惯: <span className="text-slate-300">{habit.avgSleepOnsetWithout}分钟</span>
+                              </span>
+                              <span className={cn(
+                                'font-medium min-w-[60px] text-right',
+                                habit.difference > 0 ? 'text-red-400' : habit.difference < 0 ? 'text-emerald-400' : 'text-slate-500'
+                              )}>
+                                {habit.difference > 0 ? '+' : ''}{habit.difference}分钟
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-slate-600 text-right min-w-[100px]">
+                              暂无对比数据
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-xs">
-                        <span className="text-slate-500">
-                          有习惯: <span className="text-slate-300">{habit.avgSleepOnsetMinutes}分钟</span>
-                        </span>
-                        <span className="text-slate-600">|</span>
-                        <span className="text-slate-500">
-                          无习惯: <span className="text-slate-300">{habit.avgSleepOnsetWithout}分钟</span>
-                        </span>
-                        <span className={cn(
-                          'font-medium min-w-[60px] text-right',
-                          habit.difference > 0 ? 'text-red-400' : habit.difference < 0 ? 'text-emerald-400' : 'text-slate-500'
-                        )}>
-                          {habit.difference > 0 ? '+' : ''}{habit.difference}分钟
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -222,32 +249,43 @@ export default function Habits() {
                   醒后习惯对睡眠质量的影响
                 </h4>
                 <div className="space-y-2">
-                  {insights.wake.map((habit) => (
-                    <div
-                      key={habit.habitId}
-                      className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-800/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{habit.icon}</span>
-                        <span className="text-sm text-slate-300">{habit.label}</span>
+                  {insights.wake.map((habit) => {
+                    const hasWithout = habit.withoutSampleSize > 0
+                    return (
+                      <div
+                        key={habit.habitId}
+                        className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-800/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{habit.icon}</span>
+                          <span className="text-sm text-slate-300">{habit.label}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs">
+                          <span className="text-slate-500">
+                            有习惯: <span className="text-slate-300">{habit.avgQuality} ⭐</span>
+                          </span>
+                          {hasWithout ? (
+                            <>
+                              <span className="text-slate-600">|</span>
+                              <span className="text-slate-500">
+                                无习惯: <span className="text-slate-300">{habit.avgQualityWithout} ⭐</span>
+                              </span>
+                              <span className={cn(
+                                'font-medium min-w-[50px] text-right',
+                                habit.qualityDifference > 0 ? 'text-emerald-400' : habit.qualityDifference < 0 ? 'text-red-400' : 'text-slate-500'
+                              )}>
+                                {habit.qualityDifference > 0 ? '+' : ''}{habit.qualityDifference} ⭐
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-slate-600 text-right min-w-[100px]">
+                              暂无对比数据
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-xs">
-                        <span className="text-slate-500">
-                          有习惯: <span className="text-slate-300">{habit.avgQuality} ⭐</span>
-                        </span>
-                        <span className="text-slate-600">|</span>
-                        <span className="text-slate-500">
-                          无习惯: <span className="text-slate-300">{habit.avgQualityWithout} ⭐</span>
-                        </span>
-                        <span className={cn(
-                          'font-medium min-w-[50px] text-right',
-                          habit.qualityDifference > 0 ? 'text-emerald-400' : habit.qualityDifference < 0 ? 'text-red-400' : 'text-slate-500'
-                        )}>
-                          {habit.qualityDifference > 0 ? '+' : ''}{habit.qualityDifference} ⭐
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}

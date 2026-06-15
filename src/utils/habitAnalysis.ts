@@ -81,9 +81,9 @@ export function analyzeHabits(records: SleepRecord[]): HabitInsights {
       avgSleepOnsetWithout: Math.round(avgWithout),
       sampleSize: withHabit.length,
       withoutSampleSize: withoutHabit.length,
-      difference: Math.round(avgWith - avgWithout),
+      difference: withoutHabit.length > 0 ? Math.round(avgWith - avgWithout) : 0,
     }
-  }).filter((a) => a.sampleSize >= 2)
+  }).filter((a) => a.sampleSize >= 1)
 
   const wakeAnalysis: WakeHabitAnalysis[] = WAKE_HABITS.map((habit) => {
     const withHabit = validRecords.filter((r) => r.wakeHabits.includes(habit.id))
@@ -120,16 +120,20 @@ export function analyzeHabits(records: SleepRecord[]): HabitInsights {
       avgEfficiencyWithout: parseFloat(avgEfficiencyWithout.toFixed(1)),
       sampleSize: withHabit.length,
       withoutSampleSize: withoutHabit.length,
-      qualityDifference: parseFloat((avgQualityWith - avgQualityWithout).toFixed(1)),
-      efficiencyDifference: parseFloat((avgEfficiencyWith - avgEfficiencyWithout).toFixed(1)),
+      qualityDifference: withoutHabit.length > 0 ? parseFloat((avgQualityWith - avgQualityWithout).toFixed(1)) : 0,
+      efficiencyDifference: withoutHabit.length > 0 ? parseFloat((avgEfficiencyWith - avgEfficiencyWithout).toFixed(1)) : 0,
     }
-  }).filter((a) => a.sampleSize >= 2)
+  }).filter((a) => a.sampleSize >= 1)
 
-  const sortedBedtimeByOnset = [...bedtimeAnalysis].sort((a, b) => b.difference - a.difference)
+  const sortedBedtimeByOnset = [...bedtimeAnalysis]
+    .filter((h) => h.withoutSampleSize > 0)
+    .sort((a, b) => b.difference - a.difference)
   const topBadBedtimeHabits = sortedBedtimeByOnset.filter((h) => h.difference > 5).slice(0, 3)
   const topGoodBedtimeHabits = [...sortedBedtimeByOnset].reverse().filter((h) => h.difference < -5).slice(0, 3)
 
-  const sortedWakeByQuality = [...wakeAnalysis].sort((a, b) => a.qualityDifference - b.qualityDifference)
+  const sortedWakeByQuality = [...wakeAnalysis]
+    .filter((h) => h.withoutSampleSize > 0)
+    .sort((a, b) => a.qualityDifference - b.qualityDifference)
   const topBadWakeHabits = sortedWakeByQuality.filter((h) => h.qualityDifference < -0.3).slice(0, 3)
   const topGoodWakeHabits = [...sortedWakeByQuality].reverse().filter((h) => h.qualityDifference > 0.3).slice(0, 3)
 
