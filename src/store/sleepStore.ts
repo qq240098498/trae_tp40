@@ -23,6 +23,7 @@ export const useSleepStore = create<SleepStore>()(
           ...data,
           bedtimeHabits: data.bedtimeHabits ?? [],
           wakeHabits: data.wakeHabits ?? [],
+          environment: data.environment,
           timeInBed,
           actualSleep,
           efficiency,
@@ -36,7 +37,7 @@ export const useSleepStore = create<SleepStore>()(
         set((state) => ({
           records: state.records.map((r) =>
             r.id === id
-              ? { ...r, ...data, bedtimeHabits: data.bedtimeHabits ?? r.bedtimeHabits, wakeHabits: data.wakeHabits ?? r.wakeHabits, timeInBed, actualSleep, efficiency, updatedAt: Date.now() }
+              ? { ...r, ...data, bedtimeHabits: data.bedtimeHabits ?? r.bedtimeHabits, wakeHabits: data.wakeHabits ?? r.wakeHabits, environment: data.environment ?? r.environment, timeInBed, actualSleep, efficiency, updatedAt: Date.now() }
               : r
           ),
         }))

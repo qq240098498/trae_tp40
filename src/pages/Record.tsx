@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Moon, Clock, Sun, Eye, Save, RotateCcw } from 'lucide-react'
+import { Moon, Clock, Sun, Eye, Save, RotateCcw, Thermometer, Volume2 } from 'lucide-react'
 import { useSleepStore } from '@/store/sleepStore'
 import { calculateSleepData, formatDuration, getTodayStr } from '@/utils/sleepCalculations'
 import StarRating from '@/components/StarRating'
 import { cn } from '@/lib/utils'
-import { BEDTIME_HABITS, WAKE_HABITS, type BedtimeHabitId, type WakeHabitId } from '@/types/sleep'
+import { BEDTIME_HABITS, WAKE_HABITS, LIGHT_OPTIONS, NOISE_LEVELS, type BedtimeHabitId, type WakeHabitId, type SleepEnvironment, type LightLevel, type NoiseLevel } from '@/types/sleep'
 
 export default function Record() {
   const navigate = useNavigate()
@@ -23,6 +23,7 @@ export default function Record() {
   const [quality, setQuality] = useState(editRecord?.quality ?? 3)
   const [bedtimeHabits, setBedtimeHabits] = useState<BedtimeHabitId[]>(editRecord?.bedtimeHabits ?? [])
   const [wakeHabits, setWakeHabits] = useState<WakeHabitId[]>(editRecord?.wakeHabits ?? [])
+  const [environment, setEnvironment] = useState<SleepEnvironment>(editRecord?.environment ?? {})
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function Record() {
       setQuality(editRecord.quality)
       setBedtimeHabits(editRecord.bedtimeHabits ?? [])
       setWakeHabits(editRecord.wakeHabits ?? [])
+      setEnvironment(editRecord.environment ?? {})
     }
   }, [editRecord])
 
@@ -55,6 +57,7 @@ export default function Record() {
       quality,
       bedtimeHabits,
       wakeHabits,
+      environment,
     }
 
     if (editId) {
@@ -79,6 +82,7 @@ export default function Record() {
     setQuality(3)
     setBedtimeHabits([])
     setWakeHabits([])
+    setEnvironment({})
   }
 
   const isValid = date && bedTime && sleepTime && wakeTime && quality
@@ -230,6 +234,121 @@ export default function Record() {
                   </button>
                 )
               })}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/60 backdrop-blur-sm border border-indigo-900/30 rounded-2xl p-6 space-y-6">
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-3">
+              <Thermometer size={16} className="text-cyan-400" />
+              睡眠环境
+              <span className="text-[10px] text-slate-600">（可选）</span>
+            </label>
+
+            <div className="space-y-5">
+              <div>
+                <p className="text-xs text-slate-400 mb-2">室温 (°C)</p>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="10"
+                    max="35"
+                    step="1"
+                    value={environment.roomTemp ?? 22}
+                    onChange={(e) => setEnvironment({ ...environment, roomTemp: parseInt(e.target.value) })}
+                    className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  />
+                  <span className="text-sm font-medium text-cyan-300 min-w-[48px] text-right">
+                    {environment.roomTemp ?? 22}°C
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-400 mb-2">噪音水平</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {NOISE_LEVELS.map((level) => {
+                    const selected = environment.noiseLevel === level.id
+                    return (
+                      <button
+                        key={level.id}
+                        type="button"
+                        onClick={() => setEnvironment({
+                          ...environment,
+                          noiseLevel: selected ? undefined : level.id as NoiseLevel,
+                        })}
+                        className={cn(
+                          'flex flex-col items-center gap-1 p-3 rounded-xl text-xs font-medium transition-all duration-200',
+                          selected
+                            ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40 shadow-inner shadow-cyan-500/10'
+                            : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'
+                        )}
+                      >
+                        <span className="text-xl">{level.icon}</span>
+                        <span>{level.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-400 mb-2">光线条件</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {LIGHT_OPTIONS.map((option) => {
+                    const selected = environment.lightLevel === option.id
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setEnvironment({
+                          ...environment,
+                          lightLevel: selected ? undefined : option.id as LightLevel,
+                        })}
+                        className={cn(
+                          'flex flex-col items-center gap-1 p-3 rounded-xl text-xs font-medium transition-all duration-200',
+                          selected
+                            ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40 shadow-inner shadow-cyan-500/10'
+                            : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'
+                        )}
+                      >
+                        <span className="text-xl">{option.icon}</span>
+                        <span>{option.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEnvironment({ ...environment, earPlugs: !environment.earPlugs })}
+                  className={cn(
+                    'flex items-center justify-center gap-2 p-3 rounded-xl text-xs font-medium transition-all duration-200',
+                    environment.earPlugs
+                      ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40'
+                      : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'
+                  )}
+                >
+                  <span className="text-lg">🧏</span>
+                  使用耳塞
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEnvironment({ ...environment, eyeMask: !environment.eyeMask })}
+                  className={cn(
+                    'flex items-center justify-center gap-2 p-3 rounded-xl text-xs font-medium transition-all duration-200',
+                    environment.eyeMask
+                      ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40'
+                      : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'
+                  )}
+                >
+                  <span className="text-lg">🎭</span>
+                  使用眼罩
+                </button>
+              </div>
             </div>
           </div>
         </div>

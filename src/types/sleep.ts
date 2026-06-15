@@ -1,3 +1,27 @@
+export const LIGHT_OPTIONS = [
+  { id: 'pitch_black', label: '全黑', icon: '🌑' },
+  { id: 'night_light', label: '小夜灯', icon: '🏮' },
+  { id: 'bright', label: '明亮', icon: '💡' },
+] as const
+
+export const NOISE_LEVELS = [
+  { id: 'quiet', label: '安静', icon: '🤫' },
+  { id: 'low', label: '轻微噪音', icon: '🍃' },
+  { id: 'moderate', label: '中等噪音', icon: '🔊' },
+  { id: 'loud', label: '很吵', icon: '📢' },
+] as const
+
+export type LightLevel = typeof LIGHT_OPTIONS[number]['id']
+export type NoiseLevel = typeof NOISE_LEVELS[number]['id']
+
+export interface SleepEnvironment {
+  roomTemp?: number
+  noiseLevel?: NoiseLevel
+  lightLevel?: LightLevel
+  earPlugs?: boolean
+  eyeMask?: boolean
+}
+
 export const BEDTIME_HABITS = [
   { id: 'phone', label: '玩手机', icon: '📱', impact: 'negative' },
   { id: 'reading', label: '看书', icon: '📚', impact: 'positive' },
@@ -33,6 +57,7 @@ export interface SleepRecord {
   quality: number
   bedtimeHabits: BedtimeHabitId[]
   wakeHabits: WakeHabitId[]
+  environment?: SleepEnvironment
   timeInBed: number
   actualSleep: number
   efficiency: number

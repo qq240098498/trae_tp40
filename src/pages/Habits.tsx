@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, TrendingDown, TrendingUp, Lightbulb, Moon, Sun, Info } from 'lucide-react'
+import { Sparkles, TrendingDown, TrendingUp, Lightbulb, Moon, Sun, Info, Thermometer } from 'lucide-react'
 import { useSleepStore } from '@/store/sleepStore'
 import { analyzeHabits } from '@/utils/habitAnalysis'
 import { cn } from '@/lib/utils'
@@ -11,7 +11,7 @@ export default function Habits() {
 
   const insights = useMemo(() => analyzeHabits(records), [records])
 
-  const hasData = insights.bedtime.length > 0 || insights.wake.length > 0
+  const hasData = insights.bedtime.length > 0 || insights.wake.length > 0 || insights.environment.factors.length > 0
   const hasSuggestions = insights.suggestions.length > 0
   const hasCompareData = insights.topBadBedtimeHabits.length > 0 || insights.topGoodBedtimeHabits.length > 0 || insights.topBadWakeHabits.length > 0 || insights.topGoodWakeHabits.length > 0
 
@@ -290,6 +290,64 @@ export default function Habits() {
               </div>
             )}
           </div>
+
+          {insights.environment.factors.length > 0 && (
+            <div className="bg-slate-900/60 backdrop-blur-sm border border-cyan-900/30 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Thermometer size={18} className="text-cyan-400" />
+                <h3 className="text-sm font-semibold text-slate-200">睡眠环境分析</h3>
+              </div>
+
+              {insights.environment.bestConfig && (
+                <div className="mb-4 p-3 rounded-xl bg-cyan-950/30 border border-cyan-800/30">
+                  <p className="text-xs text-cyan-400 font-medium mb-1">最佳环境组合</p>
+                  <p className="text-sm text-slate-200">{insights.environment.bestConfig.description}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-xs text-slate-400">
+                      平均质量 <span className="text-cyan-300 font-bold">{insights.environment.bestConfig.avgQuality} ⭐</span>
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      样本: {insights.environment.bestConfig.sampleSize} 天
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {insights.environment.factors.map((factor) => (
+                  <div
+                    key={factor.factor}
+                    className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-700/30"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{factor.icon}</span>
+                      <div>
+                        <p className="text-sm font-medium text-slate-200">{factor.label}</p>
+                        <p className="text-[10px] text-slate-500">最佳 vs 最差</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs">
+                      <div className="text-right">
+                        <p className="text-emerald-400 font-medium">{factor.bestLabel}</p>
+                        <p className="text-slate-500">{factor.bestAvgQuality} ⭐ ({factor.bestSampleSize}天)</p>
+                      </div>
+                      <span className="text-slate-600">vs</span>
+                      <div className="text-right">
+                        <p className="text-red-400 font-medium">{factor.worstLabel}</p>
+                        <p className="text-slate-500">{factor.worstAvgQuality} ⭐ ({factor.worstSampleSize}天)</p>
+                      </div>
+                      <span className={cn(
+                        'font-bold min-w-[50px] text-right',
+                        factor.qualityDifference > 0 ? 'text-emerald-400' : 'text-slate-500'
+                      )}>
+                        +{factor.qualityDifference} ⭐
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
